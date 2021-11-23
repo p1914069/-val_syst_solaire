@@ -48,10 +48,15 @@ def run ():
 
     # Déplacement des planètes
     for p in core.memory("TableauDePlanètes"):
+        core.memory("dist_soleil",core.memory("Soleil").position.distance_to(p.position))
+        print(core.memory("dist_soleil"))
         p.Ux = core.memory("Soleil").position - (p.position)
+        print(p.Ux)
         p.Ux = p.Ux.normalize()
+        print(p.Ux)
 
-        core.memory("Fg", core.memory("g") * ( (core.memory("Soleil").masse * p.masse)/(core.memory("Soleil").position.distance_to(p.position))))
+        core.memory("Fg", core.memory("g") * ( (core.memory("Soleil").masse * p.masse)/core.memory("dist_soleil")^2))
+
         p.Ux = p.Ux * core.memory("Fg")
         p.vitesse = p.vitesse + p.Ux
         core.memory("Fg", 0.0)
