@@ -1,4 +1,4 @@
-import pygame
+import random
 from pygame.math import Vector2
 import core
 
@@ -38,7 +38,14 @@ def setup():
     core.memory("Fg", 0.0)
     core.memory("g", 9.81)
 
+    core.memory("Acc", Vector2(0,0))
+    core.memory("Vitesse",Vector2(random.uniform(-1, 1), random.uniform(-1, 1)))
+
+    core.memory("VitesseMax", 20)
+    core.memory("AccMax", 1)
+
 def run ():
+    core.cleanScreen()
     # Dessin du soleil
     core.memory("Soleil").draw(core.screen)
 
@@ -48,20 +55,29 @@ def run ():
 
     # Déplacement des planètes
     for p in core.memory("TableauDePlanètes"):
-        core.memory("dist_soleil",core.memory("Soleil").position.distance_to(p.position))
-        print(core.memory("dist_soleil"))
-        p.Ux = core.memory("Soleil").position - (p.position)
-        print(p.Ux)
-        p.Ux = p.Ux.normalize()
-        print(p.Ux)
 
-        core.memory("Fg", core.memory("g") * ( (core.memory("Soleil").masse * p.masse)/core.memory("dist_soleil")^2))
+        core.memory("U",core.memory("Soleil").position - (p.position))
+        core.memory("U", core.memory("U").normalize())
 
-        p.Ux = p.Ux * core.memory("Fg")
-        p.vitesse = p.vitesse + p.Ux
-        core.memory("Fg", 0.0)
+        core.memory("Fg", core.memory("U") * core.memory("g") * ( (core.memory("Soleil").masse * p.masse)/core.memory("Soleil").position.distance_squared_to(p.position)))
+
+        p.acc = core.memory("Fg")
+
+        if p.acc.length() > core.memory("AccMax"):
+            p.acc = p.acc.normalize()
+            p.acc = p.acc * core.memory("AccMax")
+
+        p.vitesse = p.vitesse + p.acc
+
+        if p.vitesse.length() > core.memory("VitesseMax"):
+            p.vitesse = p.vitesse.normalize
+            p.vitesse = p.vitesse * core.memory("VitesseMax")
+
+        p.acc = Vector2(0, 0)
 
         p.position = p.position + p.vitesse
+
+
 
 
 core.main(setup, run)
